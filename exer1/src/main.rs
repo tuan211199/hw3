@@ -1,64 +1,53 @@
 use std::collections::HashMap;
-
-struct Student<T> {
-    name: String,
-    score: T
-}
-
+#[derive(Debug)]
 pub struct School<T> {
-    students: HashMap<String, Student<T>>
+    students: HashMap<String, T>
 }
 
-impl<T> School<T>
-where T: Clone + Ord,
-{
-    pub fn new(&mut self) -> School<T> {
-        School::<T>{
-            students: HashMap::new();
+impl<T: Ord + Copy> School<T> {
+    pub fn new() -> School<T> {
+        School {
+            students: HashMap::new()
         }
     }
 
-    pub fn add(&mut self, student: Student<T>) {
-        self.students.insert(String::from(self.students.len()), student);
+    pub fn add(&mut self, grade: T, student: &str) {
+        self.students.insert(student.to_string(), grade);
     }
 
     pub fn grades(&self) -> Vec<T> {
-        let stus: Vec<Student<T>> = &self.students.values().clone().collect();
-        let mut grads: Vec<T> = Vec::<T>::new();
-        for s in &stus {
-            grads.push(s.score);
+        let mut res: Vec<T> = Vec::new();
+        for (_, value) in self.students.iter() {
+            res.push(*value);
         }
-        grads.sort();
-        grads.dedup();
-        grads
+        res.sort();
+        res.dedup();
+        res
     }
 
 
     pub fn grade(&self, grade: T) -> Vec<String> {
-        let stus = self.students;
-        let mut rs = Vec::<String>::new();
-
-        for s in stus.inter() {
-            if s.grade == grade {
-                rs.push(s.name.toString());
+        let  mut res: Vec<String> = Vec::new();
+        for (key, value) in self.students.iter() {
+            if *value == grade {
+                res.push(key.to_string());
             }
         }
-        rs.sort();
-        rs
+        res.sort();
+        res
     }
 }
 
 fn main() {
-    let stu1 = Student{name: String::from("A"), score: 1};
-    let stu2 = Student{name: String::from("B"), score: 5};
-    let stu3 = Student{name: String::from("C"), score: 2};
-    let stu4 = Student{name: String::from("D"), score: 3};
-    let stu5 = Student{name: String::from("E"), score: String::from("A+")};
+    let mut school = School::new();
+    school.add(9, "Alice");
+    school.add(8, "Bob");
+    school.add(8, "Pi");
+    println!("school empty: {:?}", school);
 
-    let school = School::new();
-    school.students.insert(stu1);
-    school.students.insert(stu2);
-    school.students.insert(stu3);
-    school.students.insert(stu4);
-    school.students.insert(stu5);
+    let grades = school.grades();
+    println!("grades: {:?}", grades);
+
+    let names = school.grade(8);
+    println!("grade: {:?}", names);
 }
